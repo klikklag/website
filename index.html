@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+    <!-- Łączenie zewnętrznego arkusza stylów -->
+    <link rel="stylesheet" href="styl.css">
+</head>
+<body>
+
+    <!-- 1. BANNER (Sekcja nagłówkowa) -->
+    <header class="banner">
+        <h2>Chat</h2>
+    </header>
+
+    <!-- Główna zawartość witryny, dzielona na main i aside -->
+    <div class="container">
+        
+        <!-- 2. BLOK GŁÓWNY (main) - zajmie większość miejsca po lewej/środku -->
+        <main class="main-content">
+            <h3>Chat wykonał: [NUMER_ZDADEGO]</h3>
+            
+            <!-- Blok chatu -->
+            <section id="chat-block">
+
+                <!-- Pierwsza wypowiedź Jolanty (Jolka.jpg + tekst) -->
+                <div class="message message-jolanta">
+                    <img src="Jolka.jpg" alt="Jolanta Nowak">
+                    <p>Cześć idziesz jutro do kina?</p>
+                </div>
+
+                <!-- Pierwsza wypowiedź Krzysztofa (Krzzysiek.jpg + tekst) -->
+                <div class="message message-krzysztof">
+                    <img src="Krzzysiek.jpg" alt="Krzysztof Łukasiński">
+                    <p>Tak! A ty?</p>
+                </div>
+
+                <!-- Pole do wpisywania wiadomości -->
+                <div class="chat-input-group">
+                    <span>Wpisz wiadomość:</span>
+                    <input type="text" id="message-input" placeholder="Twoja wiadomość...">
+                    <button id="send-button">Wyślij</button>
+                </div>
+
+                <!-- Przycisk generowania losowej odpowiedzi -->
+                <div class="chat-controls">
+                    <button id="generate-response-button">Generuj losową odpowiedź</button>
+                </div>
+
+            </section>
+        </main>
+
+
+        <!-- 3. BLOK BOCZNY (aside) -->
+        <aside class="sidebar">
+            <!-- Sekcja dla Chaty -->
+            <section>
+                <h3>Chaty</h3>
+                <ul>
+                    <li>Ogólny</li>
+                    <li>Tematyczne
+                        <ol>
+                            <li>Turystyczny</li>
+                            <li>Żeglarski</li>
+                            <li>Filatelistyczny</li>
+                            <li>Hodowla zwierzątek domowych</li>
+                        </ol>
+                    </li>
+                </ul>
+            </section>
+
+            <!-- Sekcja dla Uczestników -->
+            <section class="users-list">
+                <h3>Uczestnicy</h3>
+                <p>Jolanta Nowak</p>
+                <img src="Jolka.jpg" alt="Jolanta Nowak">
+                <p>Krzysztof Łukasiński</p>
+                <img src="Krzzysiek.jpg" alt="Krzysztof Łukasiński">
+            </section>
+        </aside>
+
+    </div>
+
+    <!-- 4. STOPKA (<footer>) -->
+    <footer class="footer">
+        <h5>Chat wykonał: [NUMER_ZDADEGO]</h5>
+    </footer>
+
+    <!-- Podłączenie skryptu JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>
