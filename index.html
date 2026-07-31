@@ -3,91 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat</title>
-    <!-- Łączenie zewnętrznego arkusza stylów -->
-    <link rel="stylesheet" href="styl.css">
+    <title>C.W.E.L AWARDS</title>
+    <style>
+        /* Reset podstawowych styli */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #212529;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* Główny kontener strony */
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Układ dwukolumnowy dla ekranów powyżej 768px */
+        @media (min-width: 768px) {
+            .container {
+                flex-direction: row;
+                min-height: 600px;
+            }
+        }
+
+        /* Sekcja z tekstem */
+        .text-section {
+            flex: 1;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .text-section h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+            line-height: 1.2;
+        }
+
+        .text-section p {
+            font-size: 1.15rem;
+            line-height: 1.7;
+            color: #4a5568;
+        }
+
+        /* Sekcja ze zdjęciem */
+        .image-section {
+            flex: 1;
+            background-color: #e9ecef;
+            min-height: 300px;
+            position: relative;
+        }
+
+        .image-section img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Zdjęcie wypełnia przestrzeń bez rozciągania */
+            display: block;
+        }
+    </style>
 </head>
 <body>
 
-    <!-- 1. BANNER (Sekcja nagłówkowa) -->
-    <header class="banner">
-        <h2>Chat</h2>
-    </header>
+    <main class="container">
+        <!-- Lewa sekcja: Tekst -->
+        <section class="text-section">
+            <h1>CWEL OF THE YEAR AWARDS</h1>
+            <p>
+                MUSIX I HEBDA TO CWELE 2026 ROKU
+            </p>
+        </section>
 
-    <!-- Główna zawartość witryny, dzielona na main i aside -->
-    <div class="container">
-        
-        <!-- 2. BLOK GŁÓWNY (main) - zajmie większość miejsca po lewej/środku -->
-        <main class="main-content">
-            <h3>Chat wykonał: [NUMER_ZDADEGO]</h3>
-            
-            <!-- Blok chatu -->
-            <section id="chat-block">
+        <!-- Prawa sekcja: Zdjęcie -->
+        <section class="image-section">
+            <!-- Podmień adres w 'src' na link do swojego zdjęcia lub lokalny plik (np. src="foto.jpg") -->
+            <img src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=1000&q=80" alt="Opis zdjęcia">
+        </section>
+    </main>
 
-                <!-- Pierwsza wypowiedź Jolanty (Jolka.jpg + tekst) -->
-                <div class="message message-jolanta">
-                    <img src="Jolka.jpg" alt="Jolanta Nowak">
-                    <p>Cześć idziesz jutro do kina?</p>
-                </div>
-
-                <!-- Pierwsza wypowiedź Krzysztofa (Krzzysiek.jpg + tekst) -->
-                <div class="message message-krzysztof">
-                    <img src="Krzzysiek.jpg" alt="Krzysztof Łukasiński">
-                    <p>Tak! A ty?</p>
-                </div>
-
-                <!-- Pole do wpisywania wiadomości -->
-                <div class="chat-input-group">
-                    <span>Wpisz wiadomość:</span>
-                    <input type="text" id="message-input" placeholder="Twoja wiadomość...">
-                    <button id="send-button">Wyślij</button>
-                </div>
-
-                <!-- Przycisk generowania losowej odpowiedzi -->
-                <div class="chat-controls">
-                    <button id="generate-response-button">Generuj losową odpowiedź</button>
-                </div>
-
-            </section>
-        </main>
-
-
-        <!-- 3. BLOK BOCZNY (aside) -->
-        <aside class="sidebar">
-            <!-- Sekcja dla Chaty -->
-            <section>
-                <h3>Chaty</h3>
-                <ul>
-                    <li>Ogólny</li>
-                    <li>Tematyczne
-                        <ol>
-                            <li>Turystyczny</li>
-                            <li>Żeglarski</li>
-                            <li>Filatelistyczny</li>
-                            <li>Hodowla zwierzątek domowych</li>
-                        </ol>
-                    </li>
-                </ul>
-            </section>
-
-            <!-- Sekcja dla Uczestników -->
-            <section class="users-list">
-                <h3>Uczestnicy</h3>
-                <p>Jolanta Nowak</p>
-                <img src="Jolka.jpg" alt="Jolanta Nowak">
-                <p>Krzysztof Łukasiński</p>
-                <img src="Krzzysiek.jpg" alt="Krzysztof Łukasiński">
-            </section>
-        </aside>
-
-    </div>
-
-    <!-- 4. STOPKA (<footer>) -->
-    <footer class="footer">
-        <h5>Chat wykonał: [NUMER_ZDADEGO]</h5>
-    </footer>
-
-    <!-- Podłączenie skryptu JavaScript -->
-    <script src="script.js"></script>
 </body>
 </html>
