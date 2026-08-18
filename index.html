@@ -1,721 +1,349 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>klikklagOS Pro</title>
-<style>
-  body { 
-    margin: 0; 
-    overflow: hidden; 
-    font-family: 'Courier New', Courier, monospace; 
-    user-select: none; 
-    background-color: #222;
-  }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>klikklag.space</title>
+    <style>
+        /* CSS Variables */
+        :root {
+            --bg-color: #050505;
+            --text-main: #ffffff;
+            --text-muted: #a0a0a0;
+            --accent-primary: #8a2be2; /* BlueViolet */
+            --accent-secondary: #ff00ff; /* Magenta */
+            --card-bg: rgba(20, 20, 25, 0.6);
+        }
 
-  /* --- Boot Screen --- */
-  #boot-screen { 
-    position: absolute; 
-    inset: 0; 
-    background: #c0c0c0; 
-    z-index: 99999; 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    justify-content: center; 
-  }
-  
-  #boot-logo { 
-    width: 64px; 
-    height: 64px; 
-    border: 2px solid black; 
-    border-radius: 10px; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    margin-bottom: 20px; 
-    background: white; 
-    box-shadow: 2px 2px 0px black;
-  }
-  
-  #boot-logo::before { 
-    content: '^_^'; 
-    font-size: 24px; 
-    font-weight: bold; 
-  }
-  
-  #welcome-text { 
-    font-size: 22px; 
-    font-weight: bold; 
-    margin-bottom: 20px; 
-  }
-  
-  #progress-bar { 
-    width: 280px; 
-    height: 18px; 
-    border: 2px solid black; 
-    padding: 2px; 
-    background: white;
-    box-shadow: 2px 2px 0px rgba(0,0,0,0.3);
-  }
-  
-  #progress-fill { 
-    width: 0%; 
-    height: 100%; 
-    background: black; 
-    transition: width 2.0s linear; 
-  }
+        /* Reset & Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
 
-  /* --- Desktop Environment --- */
-  #desktop { 
-    display: none; 
-    position: absolute; 
-    inset: 0; 
-    background-color: #555; 
-    background-image: 
-      radial-gradient(#888 15%, transparent 16%), 
-      radial-gradient(#888 15%, transparent 16%); 
-    background-size: 4px 4px; 
-    background-position: 0 0, 2px 2px; 
-  }
-  
-  /* Menu Bar */
-  #menu-bar { 
-    position: absolute; 
-    top: 0; 
-    left: 0; 
-    right: 0; 
-    height: 24px; 
-    background: white; 
-    border-bottom: 2px solid black; 
-    display: flex; 
-    align-items: center; 
-    padding: 0 10px; 
-    font-size: 13px; 
-    box-shadow: 0 1px 2px rgba(0,0,0,0.3); 
-    z-index: 10000;
-  }
-  
-  .menu-item { 
-    padding: 0 10px; 
-    cursor: default; 
-    height: 100%;
-    display: flex;
-    align-items: center;
-    position: relative;
-  }
-  
-  .menu-item:hover, .menu-item.active { 
-    background: black; 
-    color: white; 
-  }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
 
-  /* Dropdown Menus */
-  .dropdown {
-    display: none;
-    position: absolute;
-    top: 24px;
-    left: 0;
-    background: white;
-    color: black;
-    border: 2px solid black;
-    box-shadow: 3px 3px 0px black;
-    min-width: 140px;
-    z-index: 10001;
-  }
-  .menu-item.active .dropdown { display: block; }
-  .dropdown-item { padding: 6px 12px; font-size: 12px; cursor: pointer; }
-  .dropdown-item:hover { background: black; color: white; }
-  .dropdown-divider { height: 1px; background: black; margin: 2px 0; }
-  
-  #clock { margin-left: auto; font-weight: bold; }
+        /* Animated Background Effects */
+        .ambient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -2;
+            overflow: hidden;
+        }
 
-  /* Draggable Desktop Icons */
-  .icon-container {
-    position: absolute;
-    width: 80px;
-    text-align: center;
-    cursor: grab;
-  }
-  .icon-container:active { cursor: grabbing; }
-  
-  .icon-box { 
-    width: 44px; 
-    height: 44px; 
-    background: white; 
-    border: 2px solid black; 
-    margin: 0 auto 4px; 
-    box-shadow: 2px 2px 0px black; 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .icon-label {
-    color: white; 
-    font-size: 11px; 
-    font-weight: bold;
-    text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
-  }
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.5;
+            animation: float 20s infinite ease-in-out alternate;
+        }
 
-  /* --- Windows System --- */
-  .window { 
-    position: absolute; 
-    background: white; 
-    border: 2px solid black; 
-    box-shadow: 4px 4px 0px rgba(0,0,0,0.6); 
-    display: none; 
-    flex-direction: column; 
-  }
-  
-  .title-bar { 
-    height: 22px; 
-    border-bottom: 2px solid black; 
-    display: flex; 
-    align-items: center; 
-    justify-content: space-between; 
-    padding: 2px 4px; 
-    background: repeating-linear-gradient(0deg, #fff, #fff 2px, #000 2px, #000 3px); 
-    cursor: grab; 
-  }
-  
-  .title-bar:active { cursor: grabbing; }
-  
-  .title-text { 
-    background: white; 
-    padding: 0 8px; 
-    font-weight: bold; 
-    font-size: 12px; 
-    border: 1px solid black;
-  }
-  
-  .window-controls { display: flex; gap: 4px; }
-  .win-btn { 
-    width: 12px; 
-    height: 12px; 
-    border: 1px solid black; 
-    background: white; 
-    cursor: pointer; 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 8px;
-    font-weight: bold;
-  }
-  .win-btn:active { background: black; color: white; }
-  
-  .window-content { 
-    padding: 10px; 
-    flex: 1; 
-    overflow: auto; 
-    color: black; 
-    font-size: 13px; 
-    background: #fff;
-  }
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: var(--accent-primary);
+            top: -10%;
+            left: -10%;
+        }
 
-  /* --- App Styles --- */
-  /* Calculator */
-  #calc-display {
-    width: 100%;
-    height: 30px;
-    background: #e0e0e0;
-    border: 2px solid black;
-    text-align: right;
-    padding: 5px;
-    font-size: 16px;
-    font-weight: bold;
-    box-sizing: border-box;
-    margin-bottom: 8px;
-  }
-  .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
-  .calc-btn {
-    padding: 8px;
-    background: #f0f0f0;
-    border: 1px solid black;
-    font-weight: bold;
-    cursor: pointer;
-    text-align: center;
-    box-shadow: 1px 1px 0px black;
-  }
-  .calc-btn:active { background: #ccc; box-shadow: none; transform: translate(1px, 1px); }
+        .orb-2 {
+            width: 300px;
+            height: 300px;
+            background: var(--accent-secondary);
+            bottom: 10%;
+            right: -5%;
+            animation-delay: -5s;
+        }
 
-  /* TextEdit */
-  .textedit-area {
-    width: 100%;
-    height: calc(100% - 32px);
-    border: none;
-    resize: none;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 13px;
-    box-sizing: border-box;
-    outline: none;
-    border-top: 1px solid #ccc;
-    padding: 6px;
-  }
-  .textedit-toolbar {
-    display: flex;
-    gap: 6px;
-    padding: 4px;
-    background: #eee;
-    border-bottom: 1px solid black;
-    align-items: center;
-  }
+        .orb-3 {
+            width: 300px;
+            height: 300px;
+            background: #4b0082;
+            top: 50%;
+            left: 50%;
+            animation-duration: 25s;
+        }
 
-  /* Paint */
-  #paint-canvas { background: white; border: 1px solid black; cursor: crosshair; display: block; }
-  .paint-toolbar { margin-bottom: 6px; display: flex; gap: 6px; }
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
 
-  /* Snake */
-  #snake-canvas { background: black; border: 2px solid black; display: block; margin: 0 auto; }
-</style>
+        /* Grid Overlay */
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Screen Transitions */
+        .screen {
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        /* Intro Landing Screen */
+        #intro-screen {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 10;
+        }
+
+        #intro-screen.fade-out {
+            opacity: 0;
+            transform: scale(1.1); /* Slight zoom in as it fades */
+            pointer-events: none;
+        }
+
+        /* Main Feed Screen */
+        #feed-screen {
+            display: none; /* Hidden entirely until triggered */
+            opacity: 0;
+            transform: translateY(40px); /* Starts slightly lower */
+            z-index: 5;
+        }
+
+        #feed-screen.visible {
+            display: block;
+        }
+
+        #feed-screen.fade-in {
+            opacity: 1;
+            transform: translateY(0); /* Glides into place */
+        }
+
+        /* Typography */
+        h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, #fff, var(--accent-primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(138, 43, 226, 0.3);
+        }
+
+        p.subtitle {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+            max-width: 600px;
+        }
+
+        .feed-header h2 {
+            font-size: 2.5rem;
+            text-align: center;
+            background: linear-gradient(to right, #fff, var(--accent-primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 3rem;
+        }
+
+        /* Call to Action Button */
+        .cta-btn {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: transparent;
+            border: 2px solid var(--accent-primary);
+            border-radius: 30px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.2);
+        }
+
+        .cta-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(138, 43, 226, 0.4), transparent);
+            transition: all 0.4s ease;
+        }
+
+        .cta-btn:hover {
+            background: var(--accent-primary);
+            box-shadow: 0 0 30px rgba(138, 43, 226, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .cta-btn:hover::before {
+            left: 100%;
+        }
+
+        /* Feed Layout */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .feed-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Post Cards */
+        .post-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .post-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(138, 43, 226, 0.4);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 
+                        0 0 20px rgba(138, 43, 226, 0.15);
+        }
+
+        .post-date {
+            font-size: 0.8rem;
+            color: var(--accent-primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .post-text {
+            color: var(--text-main);
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+
+        .post-image {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            object-fit: cover;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            h1 { font-size: 2.5rem; }
+            .feed-grid { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 <body>
 
-<!-- Boot Screen -->
-<div id="boot-screen">
-  <div id="boot-logo"></div>
-  <div id="welcome-text">klikklagOS Pro</div>
-  <div id="progress-bar">
-    <div id="progress-fill"></div>
-  </div>
-</div>
-
-<!-- Desktop Environment -->
-<div id="desktop" onclick="closeAllDropdowns(event)">
-  
-  <!-- Menu Bar -->
-  <div id="menu-bar">
-    <div class="menu-item" style="font-weight:bold;" onclick="toggleDropdown(event, this)"> kOS
-      <div class="dropdown">
-        <div class="dropdown-item" onclick="openWindow('about-window')">About klikklagOS</div>
-        <div class="dropdown-divider"></div>
-        <div class="dropdown-item" onclick="location.reload()">Restart System</div>
-      </div>
+    <!-- Fixed Background -->
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
     </div>
-    <div class="menu-item" onclick="toggleDropdown(event, this)">File
-      <div class="dropdown">
-        <div class="dropdown-item" onclick="newTextFile()">New Text File</div>
-        <div class="dropdown-item" onclick="openWindow('paint-window')">New Canvas</div>
-      </div>
+    <div class="grid-overlay"></div>
+
+    <!-- 1. Intro Landing Screen -->
+    <div id="intro-screen" class="screen">
+        <h1>klikklag.space</h1>
+        <p class="subtitle">Enter a new digital dimension. Experience seamless design, cutting-edge technology, and endless possibilities in the void.</p>
+        <button id="enter-btn" class="cta-btn">Open this shi up</button>
     </div>
-    <div class="menu-item" onclick="toggleDropdown(event, this)">Apps
-      <div class="dropdown">
-        <div class="dropdown-item" onclick="openWindow('calc-window')">Calculator</div>
-        <div class="dropdown-item" onclick="openWindow('snake-window')">Snake Game</div>
-      </div>
-    </div>
-    <div id="clock">12:00 PM</div>
-  </div>
 
-  <!-- Draggable Desktop Icons -->
-  <div class="icon-container" style="top: 40px; right: 20px;" onmousedown="startIconDrag(event, this)" ondblclick="openWindow('hd-window'); refreshHD();">
-    <div class="icon-box" style="border-radius: 6px;">
-      <div style="width: 28px; height: 18px; border: 1px solid black; background: #ddd; position: relative;">
-        <div style="width: 4px; height: 4px; background: black; border-radius: 50%; position: absolute; right: 3px; top: 6px;"></div>
-        <div style="width: 8px; height: 2px; background: black; position: absolute; left: 4px; top: 8px;"></div>
-      </div>
-    </div>
-    <div class="icon-label">klikklag HD</div>
-  </div>
+    <!-- 2. Main Feed Screen -->
+    <div id="feed-screen" class="screen">
+        <div class="container">
+            <header class="feed-header">
+                <h2>klikklag.space</h2>
+            </header>
 
-  <div class="icon-container" style="top: 130px; right: 20px;" onmousedown="startIconDrag(event, this)" ondblclick="openWindow('calc-window')">
-    <div class="icon-box" style="background: #e6e6e6;">
-      <div style="width: 24px; height: 28px; border: 1px solid black; background: white; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; padding: 2px;">
-        <div style="background:black;"></div><div style="background:black;"></div><div style="background:black;"></div>
-        <div style="background:#ccc;"></div><div style="background:#ccc;"></div><div style="background:#ccc;"></div>
-      </div>
-    </div>
-    <div class="icon-label">Calculator</div>
-  </div>
+            <main class="feed-grid">
+                <!-- Example Post 1 -->
+                <article class="post-card">
+                    <span class="post-date">System Log 01</span>
+                    <img class="post-image" src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600&auto=format&fit=crop" alt="Abstract space">
+                    <p class="post-text">Musix to cwel</p>
+                </article>
 
-  <div class="icon-container" style="top: 220px; right: 20px;" onmousedown="startIconDrag(event, this)" ondblclick="newTextFile()">
-    <div class="icon-box" style="background: #fff;">
-      <div style="width: 22px; height: 28px; border: 1px solid black; background: white; position: relative; border-top-right-radius: 8px;">
-        <div style="position: absolute; top: 0; right: 0; width: 8px; height: 8px; border-bottom: 1px solid black; border-left: 1px solid black; background: #eee;"></div>
-        <div style="width: 12px; height: 2px; background: black; margin: 8px 3px 3px 3px;"></div>
-      </div>
-    </div>
-    <div class="icon-label">TextEdit</div>
-  </div>
+                <!-- Example Post 2 -->
+                <article class="post-card">
+                    <span class="post-date">System Log 02</span>
+                    <p class="post-text">Kurwa ale kocham kolejowke</p>
+                </article>
 
-  <div class="icon-container" style="top: 310px; right: 20px;" onmousedown="startIconDrag(event, this)" ondblclick="openWindow('paint-window')">
-    <div class="icon-box" style="background: #fff;">
-      <div style="width: 26px; height: 26px; border: 1px solid black; background: #ddd; transform: rotate(45deg);"></div>
-    </div>
-    <div class="icon-label">SimplePaint</div>
-  </div>
-
-  <div class="icon-container" style="top: 400px; right: 20px;" onmousedown="startIconDrag(event, this)" ondblclick="openWindow('snake-window')">
-    <div class="icon-box" style="background: #000;">
-      <div style="color: #0f0; font-family: monospace; font-size: 14px; font-weight: bold;">>&lt;</div>
-    </div>
-    <div class="icon-label">Snake</div>
-  </div>
-
-  <div class="icon-container" style="top: 490px; right: 20px;" onmousedown="startIconDrag(event, this)" ondblclick="openWindow('about-window')">
-    <div class="icon-box" style="background: #fff;">
-      <div style="font-weight: bold; font-size: 18px;">?</div>
-    </div>
-    <div class="icon-label">System Info</div>
-  </div>
-
-
-  <!-- --- WINDOWS --- -->
-
-  <!-- HD Window (File System) -->
-  <div id="hd-window" class="window" style="top: 60px; left: 60px; width: 340px; height: 220px;">
-    <div class="title-bar" onmousedown="startDrag(event, 'hd-window')">
-      <div class="title-text">klikklag HD (Storage)</div>
-      <div class="window-controls">
-        <div class="win-btn" onclick="minimizeWindow('hd-window')">-</div>
-        <div class="win-btn" onclick="closeWindow('hd-window')">×</div>
-      </div>
-    </div>
-    <div class="window-content">
-      <p style="margin-top: 0; border-bottom: 1px solid #ccc; padding-bottom: 5px; font-size: 11px;">Saved Text Files (Persistent Storage):</p>
-      <div id="file-list" style="display: flex; gap: 12px; flex-wrap: wrap;"></div>
-    </div>
-  </div>
-
-  <!-- TextEdit Window -->
-  <div id="text-window" class="window" style="top: 100px; left: 100px; width: 340px; height: 220px;">
-    <div class="title-bar" onmousedown="startDrag(event, 'text-window')">
-      <div class="title-text" id="text-window-title">TextEdit - Untitled.txt</div>
-      <div class="window-controls">
-        <div class="win-btn" onclick="minimizeWindow('text-window')">-</div>
-        <div class="win-btn" onclick="closeWindow('text-window')">×</div>
-      </div>
-    </div>
-    <div class="window-content" style="padding: 0; display: flex; flex-direction: column;">
-      <div class="textedit-toolbar">
-        <input type="text" id="file-name-input" value="Untitled.txt" style="font-family: monospace; font-size: 12px; width: 130px; border: 1px solid black; padding: 2px;">
-        <button class="calc-btn" style="padding: 2px 8px; font-size: 11px;" onclick="saveTextFile()">Save File</button>
-      </div>
-      <textarea id="text-area-content" class="textedit-area" placeholder="Type text here..."></textarea>
-    </div>
-  </div>
-
-  <!-- Calculator Window -->
-  <div id="calc-window" class="window" style="top: 130px; left: 130px; width: 200px; height: 240px;">
-    <div class="title-bar" onmousedown="startDrag(event, 'calc-window')">
-      <div class="title-text">Calculator</div>
-      <div class="window-controls">
-        <div class="win-btn" onclick="minimizeWindow('calc-window')">-</div>
-        <div class="win-btn" onclick="closeWindow('calc-window')">×</div>
-      </div>
-    </div>
-    <div class="window-content" style="background: #c0c0c0;">
-      <div id="calc-display">0</div>
-      <div class="calc-grid">
-        <div class="calc-btn" onclick="calcClear(); playBeep();">C</div>
-        <div class="calc-btn" onclick="calcAppend('/'); playBeep();">/</div>
-        <div class="calc-btn" onclick="calcAppend('*'); playBeep();">*</div>
-        <div class="calc-btn" onclick="calcBack(); playBeep();">←</div>
-        <div class="calc-btn" onclick="calcAppend('7'); playBeep();">7</div>
-        <div class="calc-btn" onclick="calcAppend('8'); playBeep();">8</div>
-        <div class="calc-btn" onclick="calcAppend('9'); playBeep();">9</div>
-        <div class="calc-btn" onclick="calcAppend('-'); playBeep();">-</div>
-        <div class="calc-btn" onclick="calcAppend('4'); playBeep();">4</div>
-        <div class="calc-btn" onclick="calcAppend('5'); playBeep();">5</div>
-        <div class="calc-btn" onclick="calcAppend('6'); playBeep();">6</div>
-        <div class="calc-btn" onclick="calcAppend('+'); playBeep();">+</div>
-        <div class="calc-btn" onclick="calcAppend('1'); playBeep();">1</div>
-        <div class="calc-btn" onclick="calcAppend('2'); playBeep();">2</div>
-        <div class="calc-btn" onclick="calcAppend('3'); playBeep();">3</div>
-        <div class="calc-btn" style="grid-row: span 2; background: #d0d0d0; display:flex; align-items:center; justify-content:center;" onclick="calcCompute(); playBeep();">=</div>
-        <div class="calc-btn" style="grid-column: span 2;" onclick="calcAppend('0'); playBeep();">0</div>
-        <div class="calc-btn" onclick="calcAppend('.'); playBeep();">.</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Paint Window -->
-  <div id="paint-window" class="window" style="top: 160px; left: 160px; width: 310px; height: 260px;">
-    <div class="title-bar" onmousedown="startDrag(event, 'paint-window')">
-      <div class="title-text">SimplePaint</div>
-      <div class="window-controls">
-        <div class="win-btn" onclick="minimizeWindow('paint-window')">-</div>
-        <div class="win-btn" onclick="closeWindow('paint-window')">×</div>
-      </div>
-    </div>
-    <div class="window-content" style="background: #e0e0e0;">
-      <div class="paint-toolbar">
-        <button onclick="setPaintColor('black')" class="calc-btn">Pen</button>
-        <button onclick="setPaintColor('white')" class="calc-btn">Eraser</button>
-        <button onclick="clearCanvas()" class="calc-btn">Clear</button>
-      </div>
-      <canvas id="paint-canvas" width="280" height="160"></canvas>
-    </div>
-  </div>
-
-  <!-- Snake Window -->
-  <div id="snake-window" class="window" style="top: 90px; left: 360px; width: 240px; height: 260px;">
-    <div class="title-bar" onmousedown="startDrag(event, 'snake-window')">
-      <div class="title-text">Snake Game</div>
-      <div class="window-controls">
-        <div class="win-btn" onclick="minimizeWindow('snake-window'); stopSnake();">-</div>
-        <div class="win-btn" onclick="closeWindow('snake-window'); stopSnake();">×</div>
-      </div>
-    </div>
-    <div class="window-content" style="background: #222; text-align:center;">
-      <canvas id="snake-canvas" width="200" height="150"></canvas>
-      <div style="color: white; font-size: 11px; margin-top: 6px;">Use Arrow Keys</div>
-    </div>
-  </div>
-
-  <!-- System Info / About Window -->
-  <div id="about-window" class="window" style="top: 190px; left: 190px; width: 280px; height: 160px;">
-    <div class="title-bar" onmousedown="startDrag(event, 'about-window')">
-      <div class="title-text">About klikklagOS</div>
-      <div class="window-controls">
-        <div class="win-btn" onclick="closeWindow('about-window')">×</div>
-      </div>
-    </div>
-    <div class="window-content" style="text-align: center;">
-      <p style="font-weight: bold; margin-bottom: 5px;">klikklagOS v2.5 Pro</p>
-      <p style="font-size: 11px; color: #555;">Persistent Web Operating System<br>Memory: 640K RAM OK<br>Storage: LocalStorage Active</p>
-    </div>
-  </div>
-
-</div>
-
-<script>
-  // --- Audio Chime ---
-  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  function playBeep(freq = 440, duration = 0.05) {
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.frequency.value = freq;
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start();
-    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
-    osc.stop(audioCtx.currentTime + duration);
-  }
-
-  // Boot sequence animation & sound
-  setTimeout(() => { document.getElementById('progress-fill').style.width = '100%'; }, 100);
-  setTimeout(() => {
-    document.getElementById('boot-screen').style.display = 'none';
-    document.getElementById('desktop').style.display = 'block';
-    playBeep(523.25, 0.2); 
-    setTimeout(() => playBeep(659.25, 0.2), 200); 
-    setTimeout(() => playBeep(783.99, 0.4), 400); 
-    updateClock();
-    setInterval(updateClock, 60000);
-    initPaint();
-    initSnake();
-    refreshHD();
-  }, 2200);
-
-  // --- Clock ---
-  function updateClock() {
-    const now = new Date();
-    let h = now.getHours(), m = now.getMinutes();
-    const ampm = h >= 12 ? 'PM' : 'AM';
-    h = h % 12 || 12;
-    m = m < 10 ? '0' + m : m;
-    document.getElementById('clock').innerText = h + ':' + m + ' ' + ampm;
-  }
-
-  // --- Menu Dropdowns ---
-  function toggleDropdown(e, el) {
-    e.stopPropagation();
-    document.querySelectorAll('.menu-item').forEach(item => { if (item !== el) item.classList.remove('active'); });
-    el.classList.toggle('active');
-  }
-  function closeAllDropdowns(e) {
-    document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
-  }
-
-  // --- Window Management ---
-  let activeWindow = null;
-  let offsetX = 0, offsetY = 0;
-  let zIndexCounter = 10;
-
-  function openWindow(id) {
-    const win = document.getElementById(id);
-    win.style.display = 'flex';
-    win.style.zIndex = ++zIndexCounter;
-    if(id === 'snake-window') startSnake();
-  }
-  function closeWindow(id) { document.getElementById(id).style.display = 'none'; }
-  function minimizeWindow(id) { document.getElementById(id).style.display = 'none'; }
-
-  function startDrag(e, id) {
-    activeWindow = document.getElementById(id);
-    activeWindow.style.zIndex = ++zIndexCounter;
-    const rect = activeWindow.getBoundingClientRect();
-    offsetX = e.clientX - rect.left;
-    offsetY = e.clientY - rect.top;
-    document.addEventListener('mousemove', dragWindow);
-    document.addEventListener('mouseup', stopDrag);
-  }
-  function dragWindow(e) {
-    if (activeWindow) {
-      activeWindow.style.left = (e.clientX - offsetX) + 'px';
-      activeWindow.style.top = (e.clientY - offsetY) + 'px';
-    }
-  }
-  function stopDrag() {
-    activeWindow = null;
-    document.removeEventListener('mousemove', dragWindow);
-    document.removeEventListener('mouseup', stopDrag);
-  }
-
-  // --- Draggable Icons Logic ---
-  let activeIcon = null;
-  let iconOffsetX = 0, iconOffsetY = 0;
-
-  function startIconDrag(e, iconEl) {
-    // Only drag if double click isn't immediately happening
-    activeIcon = iconEl;
-    const rect = iconEl.getBoundingClientRect();
-    iconOffsetX = e.clientX - rect.left;
-    iconOffsetY = e.clientY - rect.top;
-    document.addEventListener('mousemove', dragIcon);
-    document.addEventListener('mouseup', stopIconDrag);
-  }
-  function dragIcon(e) {
-    if (activeIcon) {
-      activeIcon.style.left = (e.clientX - iconOffsetX) + 'px';
-      activeIcon.style.top = (e.clientY - iconOffsetY) + 'px';
-      activeIcon.style.right = 'auto'; // Clear right constraint if dragging
-    }
-  }
-  function stopIconDrag() {
-    activeIcon = null;
-    document.removeEventListener('mousemove', dragIcon);
-    document.removeEventListener('mouseup', stopIconDrag);
-  }
-
-  // --- Storage System (Text Files via localStorage) ---
-  function newTextFile() {
-    document.getElementById('file-name-input').value = "Untitled.txt";
-    document.getElementById('text-area-content').value = "";
-    document.getElementById('text-window-title').innerText = "TextEdit - Untitled.txt";
-    openWindow('text-window');
-  }
-
-  function saveTextFile() {
-    const filename = document.getElementById('file-name-input').value.trim();
-    const content = document.getElementById('text-area-content').value;
-    if(!filename) { alert("Please enter a valid filename."); return; }
-    
-    localStorage.setItem("klikklag_file_" + filename, content);
-    playBeep(800, 0.1);
-    alert("File '" + filename + "' saved successfully to klikklag HD!");
-    refreshHD();
-  }
-
-  function refreshHD() {
-    const fileListEl = document.getElementById('file-list');
-    fileListEl.innerHTML = "";
-    
-    let keys = Object.keys(localStorage).filter(k => k.startsWith("klikklag_file_"));
-    if(keys.length === 0) {
-      fileListEl.innerHTML = '<p style="color: #666; font-size: 11px;">No saved files found. Create one using TextEdit!</p>';
-      return;
-    }
-
-    keys.forEach(key => {
-      let filename = key.replace("klikklag_file_", "");
-      let div = document.createElement('div');
-      div.style.cssText = "text-align: center; cursor: pointer; width: 60px;";
-      div.innerHTML = `
-        <div style="width: 32px; height: 38px; background: #fff; border: 1px solid black; margin: 0 auto; border-top-right-radius: 6px; position: relative;">
-          <div style="position: absolute; top:0; right:0; width:6px; height:6px; border-bottom:1px solid black; border-left:1px solid black; background:#eee;"></div>
+                <!-- Example Post 3 -->
+                <article class="post-card">
+                    <span class="post-date">Visual 01</span>
+                    <img class="post-image" src="https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=600&auto=format&fit=crop" alt="Purple geometry">
+                </article>
+            </main>
         </div>
-        <span style="font-size: 10px; word-break: break-all;">${filename}</span>
-      `;
-      div.ondblclick = () => {
-        let content = localStorage.getItem(key);
-        document.getElementById('file-name-input').value = filename;
-        document.getElementById('text-area-content').value = content;
-        document.getElementById('text-window-title').innerText = "TextEdit - " + filename;
-        openWindow('text-window');
-      };
-      fileListEl.appendChild(div);
-    });
-  }
+    </div>
 
-  // --- Calculator Logic ---
-  let calcInput = "0";
-  function updateCalcDisplay() { document.getElementById('calc-display').innerText = calcInput; }
-  function calcAppend(val) { calcInput = (calcInput === "0" && val !== '.') ? val : calcInput + val; updateCalcDisplay(); }
-  function calcClear() { calcInput = "0"; updateCalcDisplay(); }
-  function calcBack() { calcInput = calcInput.length > 1 ? calcInput.slice(0, -1) : "0"; updateCalcDisplay(); }
-  function calcCompute() { try { calcInput = String(eval(calcInput)); } catch(e) { calcInput = "Error"; } updateCalcDisplay(); }
+    <!-- Animation Logic -->
+    <script>
+        document.getElementById('enter-btn').addEventListener('click', function() {
+            const intro = document.getElementById('intro-screen');
+            const feed = document.getElementById('feed-screen');
 
-  // --- Paint App Logic ---
-  let paintCtx, isDrawing = false, brushColor = 'black';
-  function initPaint() {
-    const canvas = document.getElementById('paint-canvas');
-    paintCtx = canvas.getContext('2d');
-    paintCtx.fillStyle = 'white';
-    paintCtx.fillRect(0, 0, canvas.width, canvas.height);
-    canvas.addEventListener('mousedown', (e) => { isDrawing = true; draw(e); });
-    canvas.addEventListener('mousemove', draw);
-    window.addEventListener('mouseup', () => isDrawing = false);
-  }
-  function setPaintColor(c) { brushColor = c; }
-  function clearCanvas() { paintCtx.fillStyle = 'white'; paintCtx.fillRect(0, 0, 280, 160); }
-  function draw(e) {
-    if (!isDrawing) return;
-    const canvas = document.getElementById('paint-canvas');
-    const rect = canvas.getBoundingClientRect();
-    paintCtx.fillStyle = brushColor;
-    paintCtx.fillRect(e.clientX - rect.left, e.clientY - rect.top, 3, 3);
-  }
+            // 1. Trigger fade out and zoom animation on intro
+            intro.classList.add('fade-out');
 
-  // --- Snake Game Logic ---
-  let snakeInterval = null;
-  function initSnake() {
-    window.addEventListener('keydown', e => {
-      if (!snakeInterval) return;
-      if (e.key === 'ArrowUp' && snakeDir.y === 0) snakeDir = {x:0, y:-10};
-      if (e.key === 'ArrowDown' && snakeDir.y === 0) snakeDir = {x:0, y:10};
-      if (e.key === 'ArrowLeft' && snakeDir.x === 0) snakeDir = {x:-10, y:0};
-      if (e.key === 'ArrowRight' && snakeDir.x === 0) snakeDir = {x:10, y:0};
-    });
-  }
-  let snake, snakeDir, food;
-  function startSnake() {
-    if (snakeInterval) return;
-    snake = [{x: 40, y: 40}, {x: 30, y: 40}, {x: 20, y: 40}];
-    snakeDir = {x: 10, y: 0};
-    food = {x: 80, y: 80};
-    snakeInterval = setInterval(updateSnake, 120);
-  }
-  function stopSnake() { clearInterval(snakeInterval); snakeInterval = null; }
-  function updateSnake() {
-    const canvas = document.getElementById('snake-canvas');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const head = {x: snake[0].x + snakeDir.x, y: snake[0].y + snakeDir.y};
-    
-    if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height || snake.some(p => p.x === head.x && p.y === head.y)) {
-      stopSnake();
-      alert("Game Over!");
-      return;
-    }
-    snake.unshift(head);
-    if (head.x === food.x && head.y === food.y) {
-      food = { x: Math.floor(Math.random() * (canvas.width / 10)) * 10, y: Math.floor(Math.random() * (canvas.height / 10)) * 10 };
-      playBeep(880, 0.05);
-    } else {
-      snake.pop();
-    }
-    ctx.fillStyle = 'black';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#0f0';
-    snake.forEach(part => ctx.fillRect(part.x, part.y, 9, 9));
-    ctx.fillStyle = 'red';
-    ctx.fillRect(food.x, food.y, 9, 9);
-  }
-</script>
+            // 2. Wait for intro to fade, then show feed
+            setTimeout(() => {
+                intro.style.display = 'none'; // Remove from layout completely
+                
+                feed.classList.add('visible'); // Give it display: block
+                
+                // Slight delay to allow display:block to apply before triggering fade-in
+                setTimeout(() => {
+                    feed.classList.add('fade-in');
+                }, 50);
+
+            }, 800); // 800ms matches the CSS transition time
+        });
+    </script>
 
 </body>
 </html>
