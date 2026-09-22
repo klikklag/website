@@ -5,14 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>klikklag.space</title>
     <style>
-        /* CSS Variables */
+        /* CSS Variables — Apple-style neutral palette */
         :root {
-            --bg-color: #050505;
-            --text-main: #ffffff;
-            --text-muted: #a0a0a0;
-            --accent-primary: #8a2be2; /* BlueViolet */
-            --accent-secondary: #ff00ff; /* Magenta */
-            --card-bg: rgba(20, 20, 25, 0.6);
+            --bg-color: #ffffff;
+            --surface: #f5f5f7;
+            --surface-elevated: rgba(0, 0, 0, 0.03);
+            --text-main: #1d1d1f;
+            --text-muted: #6e6e73;
+            --accent: #0071e3;
+            --accent-hover: #0077ed;
+            --hairline: rgba(0, 0, 0, 0.1);
+            --card-bg: rgba(0, 0, 0, 0.03);
+            --gradient-text: linear-gradient(100deg, #ff7a5a 0%, #ff2d78 28%, #b33bff 55%, #3b6bff 80%, #00c2ff 100%);
         }
 
         /* Reset & Base Styles */
@@ -20,7 +24,10 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
@@ -29,9 +36,15 @@
             min-height: 100vh;
             overflow-x: hidden;
             position: relative;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+                         "Helvetica Neue", Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            line-height: 1.47059;
+            letter-spacing: -0.022em;
         }
 
-        /* Animated Background Effects */
+        /* Subtle ambient backdrop — restrained, not neon */
         .ambient-bg {
             position: fixed;
             top: 0;
@@ -40,67 +53,26 @@
             height: 100vh;
             z-index: -2;
             overflow: hidden;
+            background:
+                radial-gradient(ellipse 900px 600px at 20% -10%, rgba(0, 113, 227, 0.08), transparent 60%),
+                radial-gradient(ellipse 900px 700px at 85% 110%, rgba(179, 59, 255, 0.07), transparent 60%);
+            background-size: 140% 140%;
+            animation: drift 22s ease-in-out infinite alternate;
         }
 
-        .orb {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(120px);
-            opacity: 0.5;
-            animation: float 20s infinite ease-in-out alternate;
+        @keyframes drift {
+            0%   { background-position: 0% 0%, 100% 100%; }
+            100% { background-position: 10% 8%, 90% 92%; }
         }
 
-        .orb-1 {
-            width: 400px;
-            height: 400px;
-            background: var(--accent-primary);
-            top: -10%;
-            left: -10%;
-        }
-
-        .orb-2 {
-            width: 300px;
-            height: 300px;
-            background: var(--accent-secondary);
-            bottom: 10%;
-            right: -5%;
-            animation-delay: -5s;
-        }
-
-        .orb-3 {
-            width: 300px;
-            height: 300px;
-            background: #4b0082;
-            top: 50%;
-            left: 50%;
-            animation-duration: 25s;
-        }
-
-        @keyframes float {
-            0% { transform: translate(0, 0) scale(1); }
-            33% { transform: translate(30px, -50px) scale(1.1); }
-            66% { transform: translate(-20px, 20px) scale(0.9); }
-            100% { transform: translate(0, 0) scale(1); }
-        }
-
-        /* Grid Overlay */
         .grid-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-image: 
-                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 30px 30px;
-            z-index: -1;
-            pointer-events: none;
+            display: none; /* the harsh grid didn't fit the calmer look, so it's retired */
         }
 
         /* Screen Transitions */
         .screen {
-            transition: opacity 0.8s ease, transform 0.8s ease;
+            transition: opacity 0.9s cubic-bezier(0.28, 0.11, 0.32, 1),
+                        transform 0.9s cubic-bezier(0.28, 0.11, 0.32, 1);
         }
 
         /* Intro Landing Screen */
@@ -121,15 +93,32 @@
 
         #intro-screen.fade-out {
             opacity: 0;
-            transform: scale(1.1); /* Slight zoom in as it fades */
+            transform: scale(1.04);
             pointer-events: none;
         }
 
+        /* Entrance choreography for the intro screen */
+        @keyframes rise-in {
+            from { opacity: 0; transform: translateY(22px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        #intro-screen h1,
+        #intro-screen p.subtitle,
+        #intro-screen .cta-btn {
+            opacity: 0;
+            animation: rise-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        #intro-screen h1        { animation-delay: 0.15s; }
+        #intro-screen p.subtitle{ animation-delay: 0.35s; }
+        #intro-screen .cta-btn  { animation-delay: 0.55s; }
+
         /* Main Feed Screen */
         #feed-screen {
-            display: none; /* Hidden entirely until triggered */
+            display: none;
             opacity: 0;
-            transform: translateY(40px); /* Starts slightly lower */
+            transform: translateY(24px);
             z-index: 5;
         }
 
@@ -139,154 +128,369 @@
 
         #feed-screen.fade-in {
             opacity: 1;
-            transform: translateY(0); /* Glides into place */
+            transform: translateY(0);
         }
 
         /* Typography */
-        h1 {
-            font-size: 4rem;
-            font-weight: 800;
-            letter-spacing: 2px;
-            margin-bottom: 1rem;
-            background: linear-gradient(to right, #fff, var(--accent-primary));
+        .gradient-text {
+            background: var(--gradient-text);
+            background-size: 300% 100%;
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 30px rgba(138, 43, 226, 0.3);
+            color: transparent;
+            animation: shift 8s ease-in-out infinite;
+        }
+
+        @keyframes shift {
+            0%   { background-position: 0% 50%; }
+            50%  { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        h1 {
+            font-size: clamp(2.75rem, 7vw, 5.5rem);
+            font-weight: 600;
+            letter-spacing: -0.03em;
+            margin-bottom: 1.25rem;
         }
 
         p.subtitle {
-            font-size: 1.2rem;
+            font-size: clamp(1.1rem, 2vw, 1.5rem);
+            font-weight: 400;
             color: var(--text-muted);
-            margin-bottom: 2.5rem;
-            line-height: 1.6;
-            max-width: 600px;
+            margin-bottom: 2.75rem;
+            line-height: 1.5;
+            letter-spacing: 0.001em;
+            max-width: 560px;
+        }
+
+        .feed-header {
+            text-align: center;
+            margin-bottom: 4.5rem;
+            padding-top: 1rem;
+            opacity: 0;
+            transform: translateY(16px);
+            animation: rise-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            animation-delay: 0.2s;
         }
 
         .feed-header h2 {
-            font-size: 2.5rem;
-            text-align: center;
-            background: linear-gradient(to right, #fff, var(--accent-primary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 3rem;
+            font-size: clamp(2rem, 4vw, 3.25rem);
+            font-weight: 600;
+            letter-spacing: -0.025em;
+            margin-bottom: 0.6rem;
         }
 
-        /* Call to Action Button */
+        .feed-header .feed-kicker {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-transform: none;
+            letter-spacing: 0.01em;
+        }
+
+        /* Call to Action Button — Apple's pill button */
         .cta-btn {
             display: inline-block;
-            padding: 1rem 2.5rem;
-            font-size: 1.1rem;
-            font-weight: 600;
+            padding: 0.85rem 2.1rem;
+            font-size: 1.06rem;
+            font-weight: 400;
             color: #fff;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            background: transparent;
-            border: 2px solid var(--accent-primary);
-            border-radius: 30px;
+            letter-spacing: -0.01em;
+            background: var(--accent);
+            border: none;
+            border-radius: 980px;
             position: relative;
             overflow: hidden;
-            transition: all 0.3s ease;
+            transition: background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
             cursor: pointer;
-            box-shadow: 0 0 15px rgba(138, 43, 226, 0.2);
+            box-shadow: 0 6px 18px rgba(0, 113, 227, 0.22);
         }
 
         .cta-btn::before {
             content: '';
             position: absolute;
             top: 0;
-            left: -100%;
-            width: 100%;
+            left: -120%;
+            width: 60%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(138, 43, 226, 0.4), transparent);
-            transition: all 0.4s ease;
+            background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+            transform: skewX(-20deg);
+            transition: left 0.6s ease;
         }
 
         .cta-btn:hover {
-            background: var(--accent-primary);
-            box-shadow: 0 0 30px rgba(138, 43, 226, 0.6);
+            background: var(--accent-hover);
             transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(0, 113, 227, 0.3);
         }
 
         .cta-btn:hover::before {
-            left: 100%;
+            left: 130%;
+        }
+
+        .cta-btn:active {
+            transform: translateY(0) scale(0.97);
+        }
+
+        /* Stats row — visit counter & countdown */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.25rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid var(--hairline);
+            border-radius: 18px;
+            padding: 1.75rem;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(28px);
+            transition: transform 0.35s cubic-bezier(0.28, 0.11, 0.32, 1),
+                        border-color 0.35s ease,
+                        box-shadow 0.35s ease;
+        }
+
+        .stat-card.in-view {
+            animation: rise-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(0, 0, 0, 0.16);
+            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.08);
+        }
+
+        .stat-label {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 600;
+            margin-bottom: 0.9rem;
+        }
+
+        .stat-number {
+            font-size: clamp(2.2rem, 5vw, 3.4rem);
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .stat-number.tick {
+            animation: pop 0.35s ease;
+        }
+
+        .quote-card {
+            text-align: left;
+        }
+
+        .quote-card .stat-label {
+            text-align: center;
+        }
+
+        .quote-text {
+            font-family: Georgia, 'Times New Roman', serif;
+            font-style: italic;
+            font-size: clamp(1.05rem, 2.2vw, 1.3rem);
+            line-height: 1.5;
+            color: var(--text-main);
+            margin: 0.2rem 0 0.8rem;
+            letter-spacing: -0.005em;
+            position: relative;
+            padding-left: 1.1rem;
+        }
+
+        .quote-text::before {
+            content: '\201C';
+            position: absolute;
+            left: -0.15rem;
+            top: -0.35rem;
+            font-size: 2.2rem;
+            font-family: Georgia, serif;
+            font-style: normal;
+            background: var(--gradient-text);
+            background-size: 300% 100%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            animation: shift 8s ease-in-out infinite;
+        }
+
+        .quote-source {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            text-align: right;
+        }
+
+        @keyframes pop {
+            0%   { transform: scale(1); }
+            40%  { transform: scale(1.08); }
+            100% { transform: scale(1); }
+        }
+
+        .countdown-row {
+            display: flex;
+            justify-content: center;
+            gap: 1.4rem;
+            flex-wrap: wrap;
+        }
+
+        .countdown-unit {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 58px;
+        }
+
+        .countdown-unit .num {
+            font-size: clamp(1.9rem, 4.5vw, 2.8rem);
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            font-variant-numeric: tabular-nums;
+            background: var(--gradient-text);
+            background-size: 300% 100%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            animation: shift 8s ease-in-out infinite;
+        }
+
+        .countdown-unit .label {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-weight: 600;
+            margin-top: 0.3rem;
+        }
+
+        @media (max-width: 600px) {
+            .stats-grid { grid-template-columns: 1fr; }
         }
 
         /* Feed Layout */
         .container {
-            max-width: 1000px;
+            max-width: 1100px;
             margin: 0 auto;
-            padding: 4rem 2rem;
+            padding: 4rem 1.75rem 6rem;
         }
 
         .feed-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
+            gap: 1.25rem;
         }
 
-        /* Post Cards */
+        /* Post Cards — clean glass panel, Apple-card style */
         .post-card {
             background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 16px;
-            padding: 1.5rem;
-            transition: all 0.3s ease;
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid var(--hairline);
+            border-radius: 18px;
+            padding: 1.75rem;
+            transition: transform 0.35s cubic-bezier(0.28, 0.11, 0.32, 1),
+                        border-color 0.35s ease,
+                        background 0.35s ease,
+                        box-shadow 0.35s ease;
             display: flex;
             flex-direction: column;
             gap: 1rem;
+            opacity: 0;
+            transform: translateY(28px);
+        }
+
+        .post-card.in-view {
+            animation: rise-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
         }
 
         .post-card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(138, 43, 226, 0.4);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 
-                        0 0 20px rgba(138, 43, 226, 0.15);
+            transform: translateY(-6px);
+            border-color: rgba(0, 0, 0, 0.16);
+            background: rgba(0, 0, 0, 0.045);
+            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.08);
         }
 
         .post-date {
-            font-size: 0.8rem;
-            color: var(--accent-primary);
+            font-size: 0.78rem;
+            color: var(--accent);
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.06em;
             font-weight: 600;
         }
 
         .post-text {
             color: var(--text-main);
-            line-height: 1.6;
-            font-size: 1rem;
+            line-height: 1.55;
+            font-size: 1.03rem;
+            font-weight: 400;
+            letter-spacing: -0.006em;
+        }
+
+        .post-image-wrap {
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--hairline);
         }
 
         .post-image {
             width: 100%;
             height: auto;
-            border-radius: 10px;
+            display: block;
             object-fit: cover;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .post-card:hover .post-image {
+            transform: scale(1.06);
         }
 
         /* Responsive */
         @media (max-width: 600px) {
-            h1 { font-size: 2.5rem; }
             .feed-grid { grid-template-columns: 1fr; }
+            .container { padding: 3rem 1.25rem 4rem; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            .ambient-bg,
+            .gradient-text,
+            #intro-screen h1,
+            #intro-screen p.subtitle,
+            #intro-screen .cta-btn,
+            .feed-header,
+            .post-card,
+            .post-image,
+            .stat-card,
+            .stat-number.tick,
+            .countdown-unit .num {
+                animation: none !important;
+                transition: none !important;
+            }
+            .post-card, .stat-card { opacity: 1; transform: none; }
         }
     </style>
 </head>
 <body>
 
     <!-- Fixed Background -->
-    <div class="ambient-bg">
-        <div class="orb orb-1"></div>
-        <div class="orb orb-2"></div>
-        <div class="orb orb-3"></div>
-    </div>
+    <div class="ambient-bg"></div>
     <div class="grid-overlay"></div>
 
     <!-- 1. Intro Landing Screen -->
     <div id="intro-screen" class="screen">
-        <h1>klikklag.space</h1>
+        <h1 class="gradient-text">klikklag.space</h1>
         <p class="subtitle">Enter a new digital dimension. Experience seamless design, cutting-edge technology, and endless possibilities in the void.</p>
         <button id="enter-btn" class="cta-btn">Open this shi up</button>
     </div>
@@ -295,14 +499,35 @@
     <div id="feed-screen" class="screen">
         <div class="container">
             <header class="feed-header">
-                <h2>klikklag.space</h2>
+                <h2 class="gradient-text">klikklag.space</h2>
+                <div class="feed-kicker">Recent entries</div>
             </header>
+
+            <section class="stats-grid">
+                <div class="stat-card quote-card">
+                    <div class="stat-label">Quote of the Day</div>
+                    <blockquote class="quote-text" id="quote-text">Loading…</blockquote>
+                    <div class="quote-source" id="quote-source"></div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">Countdown to New Year</div>
+                    <div class="countdown-row">
+                        <div class="countdown-unit"><span class="num" id="cd-days">00</span><span class="label">days</span></div>
+                        <div class="countdown-unit"><span class="num" id="cd-hours">00</span><span class="label">hrs</span></div>
+                        <div class="countdown-unit"><span class="num" id="cd-mins">00</span><span class="label">min</span></div>
+                        <div class="countdown-unit"><span class="num" id="cd-secs">00</span><span class="label">sec</span></div>
+                    </div>
+                </div>
+            </section>
 
             <main class="feed-grid">
                 <!-- Example Post 1 -->
                 <article class="post-card">
                     <span class="post-date">System Log 01</span>
-                    <img class="post-image" src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600&auto=format&fit=crop" alt="Abstract space">
+                    <div class="post-image-wrap">
+                        <img class="post-image" src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600&auto=format&fit=crop" alt="Abstract space">
+                    </div>
                     <p class="post-text">Musix to cwel</p>
                 </article>
 
@@ -315,7 +540,9 @@
                 <!-- Example Post 3 -->
                 <article class="post-card">
                     <span class="post-date">Visual 01</span>
-                    <img class="post-image" src="https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=600&auto=format&fit=crop" alt="Purple geometry">
+                    <div class="post-image-wrap">
+                        <img class="post-image" src="https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=600&auto=format&fit=crop" alt="Purple geometry">
+                    </div>
                 </article>
             </main>
         </div>
@@ -327,22 +554,148 @@
             const intro = document.getElementById('intro-screen');
             const feed = document.getElementById('feed-screen');
 
-            // 1. Trigger fade out and zoom animation on intro
             intro.classList.add('fade-out');
 
-            // 2. Wait for intro to fade, then show feed
             setTimeout(() => {
-                intro.style.display = 'none'; // Remove from layout completely
-                
-                feed.classList.add('visible'); // Give it display: block
-                
-                // Slight delay to allow display:block to apply before triggering fade-in
+                intro.style.display = 'none';
+
+                feed.classList.add('visible');
+
                 setTimeout(() => {
                     feed.classList.add('fade-in');
                 }, 50);
 
-            }, 800); // 800ms matches the CSS transition time
+            }, 900); // matches the new transition duration
         });
+
+        // Staggered scroll-reveal for post cards + stat cards
+        const cards = document.querySelectorAll('.post-card, .stat-card');
+        cards.forEach((card, i) => {
+            card.style.animationDelay = `${i * 0.1}s`;
+        });
+
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('in-view');
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.15 });
+
+        cards.forEach(card => revealObserver.observe(card));
+
+        // Quote of the day — tries a live public quotes API first
+        // (ZenQuotes), and falls back to a curated local list if that
+        // request fails for any reason (rate limits, network, CORS, etc).
+        // The local list draws from several public-domain sources so it's
+        // safe to quote in full, and picks deterministically by day of
+        // year so everyone sees the same quote on a given date.
+        (function () {
+            const quotes = [
+                // The Art of War — Sun Tzu, tr. Lionel Giles (1910)
+                { text: "All warfare is based on deception.", source: "Sun Tzu, The Art of War" },
+                { text: "In the midst of chaos, there is also opportunity.", source: "Sun Tzu, The Art of War" },
+                { text: "If you know the enemy and know yourself, you need not fear the result of a hundred battles.", source: "Sun Tzu, The Art of War" },
+                { text: "To fight and conquer in all your battles is not supreme excellence; supreme excellence consists in breaking the enemy's resistance without fighting.", source: "Sun Tzu, The Art of War" },
+                { text: "Let your plans be dark and impenetrable as night, and when you move, fall like a thunderbolt.", source: "Sun Tzu, The Art of War" },
+                { text: "Energy may be likened to the bending of a crossbow; decision, to the releasing of a trigger.", source: "Sun Tzu, The Art of War" },
+                { text: "All men can see the tactics whereby I conquer, but what none can see is the strategy out of which victory is evolved.", source: "Sun Tzu, The Art of War" },
+                { text: "Rapidity is the essence of war: take advantage of the enemy's unreadiness.", source: "Sun Tzu, The Art of War" },
+
+                // Meditations — Marcus Aurelius, tr. George Long (1862)
+                { text: "You have power over your mind, not outside events. Realize this, and you will find strength.", source: "Marcus Aurelius, Meditations" },
+                { text: "The happiness of your life depends upon the quality of your thoughts.", source: "Marcus Aurelius, Meditations" },
+                { text: "Waste no more time arguing about what a good man should be. Be one.", source: "Marcus Aurelius, Meditations" },
+                { text: "If it is not right, do not do it; if it is not true, do not say it.", source: "Marcus Aurelius, Meditations" },
+                { text: "Very little is needed to make a happy life; it is all within yourself, in your way of thinking.", source: "Marcus Aurelius, Meditations" },
+
+                // Tao Te Ching — Lao Tzu, tr. James Legge (1891)
+                { text: "A journey of a thousand miles begins with a single step.", source: "Lao Tzu, Tao Te Ching" },
+                { text: "He who knows others is wise; he who knows himself is enlightened.", source: "Lao Tzu, Tao Te Ching" },
+                { text: "The softest things in the world overcome the hardest things in the world.", source: "Lao Tzu, Tao Te Ching" },
+                { text: "When I let go of what I am, I become what I might be.", source: "Lao Tzu, Tao Te Ching" },
+                { text: "Nature does not hurry, yet everything is accomplished.", source: "Lao Tzu, Tao Te Ching" },
+
+                // The Prince — Niccolò Machiavelli, tr. W. K. Marriott (1908)
+                { text: "It is much safer to be feared than loved, if you cannot be both.", source: "Machiavelli, The Prince" },
+                { text: "Never was anything great achieved without danger.", source: "Machiavelli, The Prince" },
+                { text: "The wise man does at once what the fool does finally.", source: "Machiavelli, The Prince" },
+
+                // Letters from a Stoic — Seneca, tr. Richard Mott Gummere (1917)
+                { text: "It is not that we have a short time to live, but that we waste a lot of it.", source: "Seneca, Letters from a Stoic" },
+                { text: "Difficulties strengthen the mind, as labor does the body.", source: "Seneca, Letters from a Stoic" },
+                { text: "He who is brave is free.", source: "Seneca, Letters from a Stoic" },
+
+                // Hamlet / Julius Caesar — William Shakespeare
+                { text: "This above all: to thine own self be true.", source: "Shakespeare, Hamlet" },
+                { text: "Cowards die many times before their deaths; the valiant never taste of death but once.", source: "Shakespeare, Julius Caesar" },
+                { text: "There is nothing either good or bad, but thinking makes it so.", source: "Shakespeare, Hamlet" }
+            ];
+
+            const textEl = document.getElementById('quote-text');
+            const sourceEl = document.getElementById('quote-source');
+
+            function showLocalQuote() {
+                const now = new Date();
+                const startOfYear = new Date(now.getFullYear(), 0, 0);
+                const dayOfYear = Math.floor((now - startOfYear) / 86400000);
+                const pick = quotes[dayOfYear % quotes.length];
+                textEl.textContent = pick.text;
+                sourceEl.textContent = `— ${pick.source}`;
+            }
+
+            fetch('https://zenquotes.io/api/today')
+                .then(res => {
+                    if (!res.ok) throw new Error(`ZenQuotes responded ${res.status}`);
+                    return res.json();
+                })
+                .then(data => {
+                    const entry = Array.isArray(data) ? data[0] : null;
+                    if (entry && entry.q && entry.a) {
+                        textEl.textContent = entry.q;
+                        sourceEl.textContent = `— ${entry.a}`;
+                    } else {
+                        throw new Error('Unexpected ZenQuotes response shape');
+                    }
+                })
+                .catch(err => {
+                    console.warn('ZenQuotes unavailable, using local quote list:', err);
+                    showLocalQuote();
+                });
+        })();
+
+        // Countdown to next New Year
+        (function () {
+            const daysEl = document.getElementById('cd-days');
+            const hoursEl = document.getElementById('cd-hours');
+            const minsEl = document.getElementById('cd-mins');
+            const secsEl = document.getElementById('cd-secs');
+
+            function pad(n) { return String(n).padStart(2, '0'); }
+
+            function tick() {
+                const now = new Date();
+                const newYear = new Date(now.getFullYear() + 1, 0, 1, 0, 0, 0);
+                let diff = Math.max(0, newYear - now);
+
+                const days = Math.floor(diff / 86400000);
+                diff -= days * 86400000;
+                const hours = Math.floor(diff / 3600000);
+                diff -= hours * 3600000;
+                const mins = Math.floor(diff / 60000);
+                diff -= mins * 60000;
+                const secs = Math.floor(diff / 1000);
+
+                daysEl.textContent = pad(days);
+                hoursEl.textContent = pad(hours);
+                minsEl.textContent = pad(mins);
+                secsEl.textContent = pad(secs);
+            }
+
+            tick();
+            setInterval(tick, 1000);
+        })();
     </script>
 
 </body>
